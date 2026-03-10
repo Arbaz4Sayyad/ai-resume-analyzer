@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: ai-resume-analyzer
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/airesumeanalyzer}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${PORT:8080}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
+  jwt:
+    # Must be base64-encoded 256-bit key. Generate: openssl rand -base64 32
+    secret: ${JWT_SECRET:c3VwZXItc2VjcmV0LWtleS1mb3Itand0LTI1Ni1iaXQtbGVuZ3RoLXRlc3Q=}
+    expiration-ms: 86400000
+  ai-service:
+    url: ${AI_SERVICE_URL:http://localhost:8000}
+
+logging:
+  level:
+    com.airesumeanalyzer: INFO
+    org.springframework.security: WARN

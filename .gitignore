@@ -1,0 +1,33 @@
+# Node
+node_modules
+dist
+build
+npm-debug.log
+
+# Java
+target/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Docker
+postgres_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Environment variables
+.env
+.env.local
+docker/.env
+
+# Logs
+*.log
