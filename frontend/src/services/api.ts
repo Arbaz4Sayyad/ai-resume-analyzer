@@ -26,24 +26,93 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<{ token: string; email: string; userId: number }>('/auth/login', { email, password }),
+    api.post<{ token: string; email: string; userId: number; role: string }>('/auth/login', { email, password }),
+
   register: (email: string, password: string) =>
-    api.post<{ token: string; email: string; userId: number }>('/auth/register', { email, password }),
+    api.post<{ token: string; email: string; userId: number; role: string }>('/auth/register', { email, password }),
+
   getProfile: () =>
-    api.get<{ id: number; email: string; createdAt: string }>('/auth/profile'),
+    api.get<{ id: number; email: string; role: string; createdAt: string }>('/auth/profile'),
+}
+
+export const analysisApi = {
+  match: (resumeId: number, jobDescription: string) =>
+    api.post<{
+      atsScore: number
+      matchingSkills: string[]
+      missingSkills: string[]
+      experienceGaps: string[]
+      suggestions: string[]
+    }>('/analysis/match', { resumeId, jobDescription }),
+}
+
+export const aiApi = {
+  improveResume: (resumeText: string) =>
+    api.post<{ improvedResume: string; suggestions: string[] }>('/ai/improve-resume', { resumeText }),
+
+  interviewQuestions: (resumeText: string) =>
+    api.post<{ technical: string[]; hr: string[]; systemDesign: string[] }>('/ai/interview-questions', { resumeText }),
+
+  mockInterview: (resumeText: string, jobDescription?: string) =>
+    api.post<{ score: number; feedback: string; improvementAreas: string[] }>('/ai/mock-interview', {
+      resumeText,
+      jobDescription: jobDescription ?? '',
+    }),
+}
+
+export const jobsApi = {
+  recommendations: () =>
+    api.get<
+      Array<{
+        id: number
+        title: string
+        company: string
+        description: string
+        requiredSkills: string[]
+        matchScore: number
+      }>
+    >('/jobs/recommendations'),
+}
+
+export const recruiterApi = {
+  searchCandidates: (params?: { skills?: string; minAtsScore?: number }) =>
+    api.get<
+      Array<{
+        resumeId: number
+        userId: number
+        email: string
+        fileName: string
+        extractedTextPreview: string
+        lastAtsScore: number | null
+        skills: string[]
+        uploadedAt: string
+      }>
+    >('/recruiter/candidates', { params }),
 }
 
 export const resumeApi = {
   upload: (file: File) => {
     const form = new FormData()
     form.append('file', file)
+
     return api.post<{ id: number; fileName: string; extractedText: string; uploadedAt: string }>(
       '/resume/upload',
       form,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
   },
-  list: () => api.get<Array<{ id: number; fileName: string; extractedText: string; uploadedAt: string }>>('/resume/list'),
+
+  list: () =>
+    api.get<Array<{ id: number; fileName: string; extractedText: string; uploadedAt: string }>>(
+      '/resume/list'
+    ),
+
+  getById: (id: number) =>
+    api.get<{ id: number; fileName: string; extractedText: string; uploadedAt: string }>(
+      `/resume/${id}`
+    ),
+
+  // ✅ FIXED: Send data in request body instead of URL params
   analyze: (resumeId: number, jobDescription?: string) =>
     api.post<{
       atsScore: number
@@ -51,7 +120,11 @@ export const resumeApi = {
       missingSkills: string[]
       recommendations: string[]
       interviewQuestions: { technical: string[]; behavioral: string[] }
-    }>('/resume/analyze', null, { params: { resumeId, jobDescription } }),
+    }>('/resume/analyze', {
+      resumeId,
+      jobDescription
+    }),
+
   compare: (resumeId: number, jobDescription: string) =>
     api.post<{
       matchedSkills: string[]
@@ -60,10 +133,12 @@ export const resumeApi = {
       atsScore: number
       recommendations: string[]
     }>('/resume/compare', { resumeId, jobDescription }),
+
   getQuestions: (resumeId: number, jobDescription?: string) =>
     api.get<{ technical: string[]; behavioral: string[] }>('/resume/questions', {
       params: { resumeId, jobDescription },
     }),
+
   getSuggestions: (resumeId: number, jobDescription?: string) =>
     api.post<{
       resumeScore: number
@@ -71,6 +146,7 @@ export const resumeApi = {
       improvementSuggestions: string[]
       optimizedSummary: string
     }>('/resume/suggestions', { resumeId, jobDescription }),
+
   chat: (resumeId: number, question: string, jobDescription?: string) =>
     api.post<{ answer: string }>('/resume/chat', { resumeId, question, jobDescription }),
 }

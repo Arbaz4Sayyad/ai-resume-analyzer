@@ -21,11 +21,8 @@ public class ResumeSuggestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "resume_id", nullable = false)
-    private Long resumeId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resume_id", insertable = false, updatable = false)
+    @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
 
     @Column(name = "resume_score")
@@ -42,7 +39,7 @@ public class ResumeSuggestion {
     @Column(name = "optimized_summary", columnDefinition = "TEXT")
     private String optimizedSummary;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @PrePersist

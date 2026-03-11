@@ -15,5 +15,6 @@ public class ProfileResponse {
 
     private Long id;
     private String email;
+    private String role;
     private Instant createdAt;
 }

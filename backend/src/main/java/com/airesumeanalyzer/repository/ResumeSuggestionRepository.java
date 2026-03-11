@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ResumeSuggestionRepository extends JpaRepository<ResumeSuggestion, Long> {
 
-    List<ResumeSuggestion> findByResumeIdOrderByCreatedAtDesc(Long resumeId);
+    List<ResumeSuggestion> findByResume_IdOrderByCreatedAtDesc(Long resumeId);
 }

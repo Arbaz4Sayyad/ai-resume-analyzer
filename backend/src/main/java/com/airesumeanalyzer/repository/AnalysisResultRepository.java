@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface AnalysisResultRepository extends JpaRepository<AnalysisResult, Long> {
 
-    List<AnalysisResult> findByResumeIdOrderByCreatedAtDesc(Long resumeId);
+    List<AnalysisResult> findByResume_IdOrderByCreatedAtDesc(Long resumeId);
 
-    Optional<AnalysisResult> findFirstByResumeIdOrderByCreatedAtDesc(Long resumeId);
+    Optional<AnalysisResult> findFirstByResume_IdOrderByCreatedAtDesc(Long resumeId);
 }

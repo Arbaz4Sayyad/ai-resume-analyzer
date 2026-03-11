@@ -5,6 +5,7 @@ import com.airesumeanalyzer.dto.LoginRequest;
 import com.airesumeanalyzer.dto.ProfileResponse;
 import com.airesumeanalyzer.dto.RegisterRequest;
 import com.airesumeanalyzer.model.User;
+import com.airesumeanalyzer.model.UserRole;
 import com.airesumeanalyzer.repository.UserRepository;
 import com.airesumeanalyzer.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AuthService {
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(UserRole.USER)
                 .build();
         user = userRepository.save(user);
 
@@ -39,6 +41,7 @@ public class AuthService {
                 .token(token)
                 .email(user.getEmail())
                 .userId(user.getId())
+                .role(user.getRole().name())
                 .build();
     }
 
@@ -56,6 +59,7 @@ public class AuthService {
                 .token(token)
                 .email(user.getEmail())
                 .userId(user.getId())
+                .role(user.getRole().name())
                 .build();
     }
 
@@ -64,6 +68,7 @@ public class AuthService {
                 .map(user -> ProfileResponse.builder()
                         .id(user.getId())
                         .email(user.getEmail())
+                        .role(user.getRole().name())
                         .createdAt(user.getCreatedAt())
                         .build())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
 
-    List<Resume> findByUserIdOrderByUploadedAtDesc(Long userId);
+    List<Resume> findByUser_IdOrderByUploadedAtDesc(Long userId);
 }

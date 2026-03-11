@@ -6,14 +6,38 @@ from app.models.schemas import (
     CompareJobDescriptionRequest,
     ResumeSuggestionsRequest,
     ResumeChatRequest,
+    AnalyzeResumeRequest,
+    ImproveResumeRequest,
+    InterviewQuestionsOnlyRequest,
+    MockInterviewRequest,
+    JobRecommendationsRequest,
 )
-from app.services.openai_service import (
+# from app.services.openai_service import (
+#     extract_skills,
+#     get_ats_score,
+#     generate_questions,
+#     compare_job_description,
+#     get_resume_suggestions,
+#     resume_chat,
+#     analyze_resume_match,
+#     improve_resume,
+#     generate_interview_questions,
+#     mock_interview_evaluate,
+#     get_job_recommendations,
+# )
+
+from app.services.ai_service import (
     extract_skills,
     get_ats_score,
     generate_questions,
     compare_job_description,
     get_resume_suggestions,
     resume_chat,
+    analyze_resume_match,
+    improve_resume,
+    generate_interview_questions,
+    mock_interview_evaluate,
+    get_job_recommendations,
 )
 
 router = APIRouter()
@@ -67,6 +91,56 @@ async def resume_suggestions_endpoint(request: ResumeSuggestionsRequest):
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Suggestions failed: {str(e)}")
+
+
+@router.post("/analyze-resume")
+async def analyze_resume_endpoint(request: AnalyzeResumeRequest):
+    try:
+        return analyze_resume_match(request.resume_text, request.job_description)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@router.post("/improve-resume")
+async def improve_resume_endpoint(request: ImproveResumeRequest):
+    try:
+        return improve_resume(request.resume_text)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Improve failed: {str(e)}")
+
+
+@router.post("/generate-questions")
+async def generate_questions_only_endpoint(request: InterviewQuestionsOnlyRequest):
+    try:
+        return generate_interview_questions(request.resume_text)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Question generation failed: {str(e)}")
+
+
+@router.post("/mock-interview")
+async def mock_interview_endpoint(request: MockInterviewRequest):
+    try:
+        return mock_interview_evaluate(request.resume_text, request.job_description)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Mock interview failed: {str(e)}")
+
+
+@router.post("/job-recommendations")
+async def job_recommendations_endpoint(request: JobRecommendationsRequest):
+    try:
+        return get_job_recommendations(request.resume_text)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Job recommendations failed: {str(e)}")
 
 
 @router.post("/resumeChat")

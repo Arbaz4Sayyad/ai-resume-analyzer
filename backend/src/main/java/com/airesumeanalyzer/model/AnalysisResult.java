@@ -22,11 +22,8 @@ public class AnalysisResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "resume_id", nullable = false)
-    private Long resumeId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resume_id", insertable = false, updatable = false)
+    @JoinColumn(name = "resume_id", nullable = false)
     private Resume resume;
 
     @Column(name = "ats_score")
@@ -44,7 +41,7 @@ public class AnalysisResult {
     @Column(name = "interview_questions", columnDefinition = "jsonb")
     private Map<String, List<String>> interviewQuestions;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @PrePersist

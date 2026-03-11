@@ -8,7 +8,10 @@ import { DashboardHome } from './pages/DashboardHome'
 import { UploadPage } from './pages/UploadPage'
 import { AnalysisDashboard } from './pages/AnalysisDashboard'
 import { InterviewQuestionsPage } from './pages/InterviewQuestionsPage'
+import { InterviewPrepPage } from './pages/InterviewPrepPage'
 import { ResumeOptimizationPage } from './pages/ResumeOptimizationPage'
+import { JobsPage } from './pages/JobsPage'
+import { RecruiterDashboardPage } from './pages/RecruiterDashboardPage'
 import { AIAssistantPage } from './pages/AIAssistantPage'
 import { SettingsPage } from './pages/SettingsPage'
 
@@ -35,9 +38,12 @@ export default function App() {
         <Route index element={<DashboardHome />} />
         <Route path="upload" element={<UploadPage />} />
         <Route path="analysis" element={<AnalysisDashboard />} />
+        <Route path="interview-prep" element={<InterviewPrepPage />} />
         <Route path="questions" element={<InterviewQuestionsPage />} />
         <Route path="optimization" element={<ResumeOptimizationPage />} />
         <Route path="assistant" element={<AIAssistantPage />} />
+        <Route path="jobs" element={<JobsPage />} />
+        <Route path="recruiter" element={<RecruiterDashboardPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

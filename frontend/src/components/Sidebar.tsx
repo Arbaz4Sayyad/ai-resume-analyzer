@@ -8,23 +8,33 @@ import {
   MessageCircle,
   Settings,
   LogOut,
+  Briefcase,
+  Users,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { cn } from '../utils/cn'
 
-const nav = [
+const userNav = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/app/upload', icon: FileUp, label: 'Upload Resume', end: false },
   { to: '/app/analysis', icon: BarChart3, label: 'Analysis', end: false },
-  { to: '/app/questions', icon: MessageSquare, label: 'Interview Questions', end: false },
-  { to: '/app/optimization', icon: Sparkles, label: 'Resume Optimization', end: false },
+  { to: '/app/interview-prep', icon: MessageSquare, label: 'Interview Prep', end: false },
+  { to: '/app/optimization', icon: Sparkles, label: 'Resume Builder', end: false },
   { to: '/app/assistant', icon: MessageCircle, label: 'AI Assistant', end: false },
+  { to: '/app/jobs', icon: Briefcase, label: 'Job Recommendations', end: false },
   { to: '/app/settings', icon: Settings, label: 'Settings', end: false },
 ]
 
 export function Sidebar() {
-  const { logout, email } = useAuth()
+  const { logout, email, role } = useAuth()
   const navigate = useNavigate()
+  const nav =
+    role === 'RECRUITER'
+      ? [
+          ...userNav,
+          { to: '/app/recruiter', icon: Users, label: 'Recruiter Dashboard', end: false as const },
+        ]
+      : userNav
 
   const handleLogout = () => {
     logout()

@@ -4,7 +4,8 @@ interface AuthContextType {
   token: string | null
   email: string | null
   userId: number | null
-  login: (token: string, email: string, userId: number) => void
+  role: string | null
+  login: (token: string, email: string, userId: number, role?: string) => void
   logout: () => void
 }
 
@@ -17,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const id = localStorage.getItem('userId')
     return id ? parseInt(id, 10) : null
   })
+  const [role, setRole] = useState<string | null>(() => localStorage.getItem('role'))
 
   useEffect(() => {
     if (token) {
@@ -36,20 +38,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem('userId')
   }, [userId])
 
-  const login = (t: string, e: string, id: number) => {
+  useEffect(() => {
+    if (role) localStorage.setItem('role', role)
+    else localStorage.removeItem('role')
+  }, [role])
+
+  const login = (t: string, e: string, id: number, r?: string) => {
     setToken(t)
     setEmail(e)
     setUserId(id)
+    setRole(r ?? 'USER')
   }
 
   const logout = () => {
     setToken(null)
     setEmail(null)
     setUserId(null)
+    setRole(null)
   }
 
   return (
-    <AuthContext.Provider value={{ token, email, userId, login, logout }}>
+    <AuthContext.Provider value={{ token, email, userId, role, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

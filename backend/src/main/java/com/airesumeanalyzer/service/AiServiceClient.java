@@ -86,6 +86,62 @@ public class AiServiceClient {
                 .body(Map.class);
     }
 
+    public Map<String, Object> getJobRecommendations(String resumeText) {
+        return restClient.post()
+                .uri("/job-recommendations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("resume_text", resumeText))
+                .retrieve()
+                .body(Map.class);
+    }
+
+    public Map<String, Object> analyzeResumeMatch(String resumeText, String jobDescription) {
+        try {
+                return restClient.post()
+                        .uri("/analyze-resume")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(Map.of(
+                                "resume_text", resumeText,
+                                "job_description", jobDescription != null ? jobDescription : ""
+                        ))
+                        .retrieve()
+                        .body(Map.class);
+
+        } catch (Exception e) {
+                throw new RuntimeException("AI service call failed: " + e.getMessage(), e);
+        }
+    }
+
+    public Map<String, Object> improveResume(String resumeText) {
+        return restClient.post()
+                .uri("/improve-resume")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("resume_text", resumeText))
+                .retrieve()
+                .body(Map.class);
+    }
+
+    public Map<String, Object> generateInterviewQuestions(String resumeText) {
+        return restClient.post()
+                .uri("/generate-questions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("resume_text", resumeText))
+                .retrieve()
+                .body(Map.class);
+    }
+
+    public Map<String, Object> mockInterview(String resumeText, String jobDescription) {
+        return restClient.post()
+                .uri("/mock-interview")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "resume_text", resumeText,
+                        "job_description", jobDescription != null ? jobDescription : ""
+                ))
+                .retrieve()
+                .body(Map.class);
+    }
+
     public String resumeChat(String resumeText, String jobDescription, String question) {
         Map<String, Object> response = restClient.post()
                 .uri("/resumeChat")

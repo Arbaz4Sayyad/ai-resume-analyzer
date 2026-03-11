@@ -8,6 +8,7 @@ import com.airesumeanalyzer.model.ResumeSuggestion;
 import com.airesumeanalyzer.repository.AnalysisResultRepository;
 import com.airesumeanalyzer.repository.ResumeRepository;
 import com.airesumeanalyzer.repository.ResumeSuggestionRepository;
+import com.airesumeanalyzer.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class ResumeService {
 
     private final ResumeRepository resumeRepository;
+    private final UserRepository userRepository;
     private final AnalysisResultRepository analysisResultRepository;
     private final ResumeSuggestionRepository suggestionRepository;
     private final ResumeTextExtractor textExtractor;
@@ -35,8 +37,11 @@ public class ResumeService {
 
         String extractedText = textExtractor.extractText(file.getInputStream(), fileName);
 
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
         Resume resume = Resume.builder()
-                .userId(userId)
+                .user(user)
                 .fileName(fileName)
                 .extractedText(extractedText)
                 .build();
@@ -69,7 +74,7 @@ public class ResumeService {
                 : null;
 
         AnalysisResult result = AnalysisResult.builder()
-                .resumeId(resumeId)
+                .resume(resume)
                 .atsScore(atsScore)
                 .matchedSkills(matchedSkills)
                 .missingSkills(missingSkills)
@@ -98,7 +103,7 @@ public class ResumeService {
             return aiServiceClient.generateQuestions(resume.getExtractedText(), jobDescription);
         }
 
-        return analysisResultRepository.findFirstByResumeIdOrderByCreatedAtDesc(resumeId)
+        return analysisResultRepository.findFirstByResume_IdOrderByCreatedAtDesc(resumeId)
                 .map(AnalysisResult::getInterviewQuestions)
                 .orElseGet(() -> aiServiceClient.generateQuestions(resume.getExtractedText(), ""));
     }
@@ -118,7 +123,7 @@ public class ResumeService {
         String optimizedSummary = (String) result.get("optimized_summary");
 
         ResumeSuggestion suggestion = ResumeSuggestion.builder()
-                .resumeId(resumeId)
+                .resume(resume)
                 .resumeScore(resumeScore)
                 .missingKeywords(missingKeywords)
                 .improvementSuggestions(improvementSuggestions)
@@ -140,8 +145,18 @@ public class ResumeService {
         return ChatResponse.builder().answer(answer).build();
     }
 
+    public ResumeUploadResponse getResume(Long resumeId, Long userId) {
+        Resume resume = getResumeOrThrow(resumeId, userId);
+        return ResumeUploadResponse.builder()
+                .id(resume.getId())
+                .fileName(resume.getFileName())
+                .extractedText(resume.getExtractedText())
+                .uploadedAt(resume.getUploadedAt())
+                .build();
+    }
+
     public List<ResumeUploadResponse> listResumes(Long userId) {
-        return resumeRepository.findByUserIdOrderByUploadedAtDesc(userId).stream()
+        return resumeRepository.findByUser_IdOrderByUploadedAtDesc(userId).stream()
                 .map(r -> ResumeUploadResponse.builder()
                         .id(r.getId())
                         .fileName(r.getFileName())
@@ -156,7 +171,7 @@ public class ResumeService {
     private Resume getResumeOrThrow(Long resumeId, Long userId) {
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", resumeId));
-        if (!resume.getUserId().equals(userId)) {
+        if (!resume.getUser().getId().equals(userId)) {
             throw new ResourceNotFoundException("Resume", resumeId);
         }
         return resume;

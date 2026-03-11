@@ -19,7 +19,7 @@ export function LoginPage() {
     setLoading(true)
     try {
       const { data } = await authApi.login(email, password)
-      login(data.token, data.email, data.userId)
+      login(data.token, data.email, data.userId, data.role)
       navigate('/app')
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Login failed')

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { CheckCircle, XCircle, Lightbulb } from 'lucide-react'
-import { resumeApi } from '../services/api'
+import { resumeApi, analysisApi } from '../services/api'
 import { Button } from '../components/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card'
 
@@ -11,6 +11,7 @@ interface AnalysisState {
   matchedSkills: string[]
   missingSkills: string[]
   recommendations: string[]
+  experienceGaps?: string[]
   interviewQuestions?: { technical: string[]; behavioral: string[] }
 }
 
@@ -44,8 +45,16 @@ export function AnalysisDashboard() {
     setLoading(true)
     setError('')
     try {
-      const { data: res } = await resumeApi.analyze(id, jobDescription || undefined)
-      setData(res)
+      const { data: matchData } = await analysisApi.match(id, jobDescription || '')
+      const { data: questionsData } = await resumeApi.getQuestions(id, jobDescription || undefined).catch(() => ({ data: { technical: [], behavioral: [] } }))
+      setData({
+        atsScore: matchData.atsScore ?? 0,
+        matchedSkills: matchData.matchingSkills ?? [],
+        missingSkills: matchData.missingSkills ?? [],
+        recommendations: matchData.suggestions ?? [],
+        experienceGaps: matchData.experienceGaps ?? [],
+        interviewQuestions: questionsData,
+      })
     } catch (err: unknown) {
       setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Analysis failed')
     } finally {
@@ -194,6 +203,21 @@ export function AnalysisDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {data.experienceGaps && data.experienceGaps.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Experience Gaps</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-inside list-disc space-y-2 text-slate-700">
+                  {data.experienceGaps.map((g, i) => (
+                    <li key={i}>{g}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>

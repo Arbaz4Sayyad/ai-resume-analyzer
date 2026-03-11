@@ -19,7 +19,7 @@ export function RegisterPage() {
     setLoading(true)
     try {
       const { data } = await authApi.register(email, password)
-      login(data.token, data.email, data.userId)
+      login(data.token, data.email, data.userId, data.role)
       navigate('/app')
     } catch (err: unknown) {
       const res = err as { response?: { data?: { error?: string; errors?: Record<string, string> } } }
