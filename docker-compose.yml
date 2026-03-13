@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: resume_analyzer
+    ports:
+      - "5432:5432"
+
+  ai-service:
+    image: your-ai-image
+    environment:
+      OPENAI_API_KEY: your-openai-api-key
+      AI_SERVICE_URL: http://ai-service:8000
+    ports:
+      - "8000:8000"
+
+  backend:
+    image: your-spring-boot-image
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: your-react-image
+    ports:
+      - "3000:3000"
