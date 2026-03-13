@@ -56,7 +56,13 @@ export function AnalysisDashboard() {
         interviewQuestions: questionsData,
       })
     } catch (err: unknown) {
-      setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Analysis failed')
+      const res = err as { response?: { data?: { error?: string; message?: string; success?: boolean } } }
+      const msg = res?.response?.data?.message || res?.response?.data?.error
+      if (msg === 'AI analysis temporarily disabled' || res?.response?.data?.success === false) {
+        setError('AI analysis is disabled in this demo build.')
+      } else {
+        setError(msg || 'Analysis failed')
+      }
     } finally {
       setLoading(false)
     }

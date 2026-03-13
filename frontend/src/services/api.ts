@@ -31,6 +31,12 @@ export const authApi = {
   register: (email: string, password: string) =>
     api.post<{ token: string; email: string; userId: number; role: string }>('/auth/register', { email, password }),
 
+  forgotPassword: (email: string) =>
+    api.post<{ success: boolean; message: string }>('/auth/forgot-password', { email }),
+
+  resetPassword: (token: string, password: string) =>
+    api.post<{ success: boolean; message: string }>('/auth/reset-password', { token, password }),
+
   getProfile: () =>
     api.get<{ id: number; email: string; role: string; createdAt: string }>('/auth/profile'),
 }

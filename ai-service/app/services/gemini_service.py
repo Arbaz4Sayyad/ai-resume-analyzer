@@ -1,13 +1,7 @@
-import google.generativeai as genai
-import os
+"""
+Re-exports from gemini.py for backwards compatibility.
+All Gemini API logic is centralized in gemini.py.
+"""
+from app.services.gemini import ask_gemini
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-pro")
-
-
-def ask_gemini(prompt: str):
-
-    response = model.generate_content(prompt)
-
-    return response.text
+__all__ = ["ask_gemini"]

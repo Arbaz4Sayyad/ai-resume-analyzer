@@ -1,5 +1,8 @@
 # Load environment variables from .env (copy from .env.example)
+# Required: Copy .env.example to .env and set GEMINI_API_KEY
+
 services:
+
   postgres:
     image: postgres:15-alpine
     container_name: airesume-postgres
@@ -19,20 +22,45 @@ services:
       timeout: 5s
       retries: 5
 
+  # Old AI service config
+  # ai-service:
+  #   build:
+  #     context: ../ai-service
+  #   container_name: airesume-ai-service
+  #   platform: linux/amd64
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     GEMINI_API_KEY: ${GEMINI_API_KEY}
+  #     PYTHONUNBUFFERED: 1
+  #   depends_on:
+  #     postgres:
+  #       condition: service_started
+
   ai-service:
     build:
       context: ../ai-service
-    container_name: airesume-ai-service
+    container_name: ai-resume-analyzer
     platform: linux/amd64
-    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      PYTHONUNBUFFERED: 1
-    depends_on:
-      postgres:
-        condition: service_started
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+      PYTHONUNBUFFERED: "1"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   backend:
     build:
@@ -48,6 +76,17 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       JWT_SECRET: ${JWT_SECRET:-c3VwZXItc2VjcmV0LWtleS1mb3Itand0LTI1Ni1iaXQtbGVuZ3RoLXRlc3Q=}
       AI_SERVICE_URL: http://ai-service:8000
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:-}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USER: ${EMAIL_USER:-}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy
